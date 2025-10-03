@@ -1,32 +1,77 @@
 import { StatusBar } from 'expo-status-bar';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import Task from './components/Task';
-import { add } from 'react-native/types_generated/Libraries/Animated/AnimatedExports';
+
+type TaskType = {
+  text: string;
+  completed: boolean;
+};
 
 export default function App() {
+  const [task, setTask] = useState<string>('');
+  const [taskItems, setTaskItems] = useState<TaskType[]>([
+    { text: 'Start writing a task!', completed: false }
+  ]);
+
+  const handleAddTask = () => {
+    if (taskItems.length >= 5) {
+      Alert.alert('Task Limit Reached', 'You can only add up to 5 tasks!');
+      return;
+    }
+    if (task.length === 0) {
+      Alert.alert('Empty Task', 'Please enter a valid task.');
+      return;
+    }
+      
+    setTaskItems([...taskItems, { text: task, completed: false }]);
+    setTask('');
+  };
+
+  const toggleTaskCompleted = (index: number) => {
+    setTaskItems(items =>
+      items.map((item, i) =>
+        i === index ? { ...item, completed: !item.completed } : item
+      )
+    );
+  };
+
+  const removeTask = (index: number) => {
+    setTaskItems(items => items.filter((_, i) => i !== index));
+  };
+
   return (
     <View style={styles.container}>
-      
       <View style={styles.clipboard}>
         <View style={styles.clipboardClip}/>
         <View style={styles.clipboardClipHole}/>
         <View style={styles.clipboardBody}>
           <Text style={{fontSize: 24, fontWeight: 'bold'}}>ToDoList</Text>
-
-        <View style={{marginTop: 20}}>
-          {/* // Task list */}
-          <Task text={'Create a repo on github'}/>
-          <Task text={'Study react native'}/>
-        </View>
-        <StatusBar style="auto" />
+          <View style={{marginTop: 20}}>
+            {taskItems.map((item, index) => (
+              <Task
+                key={index}
+                text={item.text}
+                completed={item.completed}
+                onCheckBoxPress={() => toggleTaskCompleted(index)}
+                onTaskPress={() => removeTask(index)}
+              />
+            ))}
+          </View>
+          <StatusBar style="auto" />
         </View>
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.writeTaskTextBox}
-        >
-        <TextInput style={styles.input} placeholder='Write a task'></TextInput>
-        <TouchableOpacity>
+      >
+        <TextInput
+          style={styles.input}
+          placeholder='Write a task'
+          value={task}
+          onChangeText={setTask}
+        />
+        <TouchableOpacity onPress={handleAddTask}>
           <View style={styles.addTaskButton}>
             <Text style={{fontSize: 30}}>+</Text>
           </View>

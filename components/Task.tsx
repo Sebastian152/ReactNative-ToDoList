@@ -2,16 +2,21 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native'
 
 interface TaskProps {
   text: string;
+  completed: boolean;
+  onCheckBoxPress: () => void;
+  onTaskPress: () => void;
 }
 
-export default function Task( {text} : TaskProps) {
+export default function Task({ text, completed, onCheckBoxPress, onTaskPress }: TaskProps) {
   return (
-    <View style={styles.taskAppearance}>
+    <TouchableOpacity style={styles.taskAppearance} activeOpacity={0.8} onPress={onTaskPress}>
       <View style={{flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'}}>
-        <TouchableOpacity style={styles.taskCheckBox}/>
-        <Text style={{color: '#fff', fontWeight: 'bold'}}>{text}</Text>
+        <TouchableOpacity style={[styles.taskCheckBox, completed && styles.taskCheckBoxChecked]} onPress={onCheckBoxPress}>
+          {completed && <View style={styles.checkMark}/>}
+        </TouchableOpacity>
+        <Text style={[{color: '#fff', fontWeight: 'bold'}, completed && {textDecorationLine: 'line-through', opacity: 0.5}]}>{text}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -26,10 +31,21 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     backgroundColor: '#fff',
-    padding: 15,
-    flexDirection: 'row',
     marginRight: 15,
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-
+  taskCheckBoxChecked: {
+    backgroundColor: '#4caf50',
+    borderColor: '#388e3c',
+    borderWidth: 2,
+  },
+  checkMark: {
+    width: 10,
+    height: 10,
+    backgroundColor: '#fff',
+    borderRadius: 2,
+  },
 });
 
